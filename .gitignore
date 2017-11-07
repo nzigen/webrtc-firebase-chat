@@ -1,0 +1,31 @@
+# phpstorm project files
+.idea
+!.idea/vcs.xml
+
+# netbeans project files
+nbproject
+
+# Ignore all logfiles and tempfiles.
+nohup.out
+*.log
+tmp/
+.sass-cache/
+.DS_Store
+.lock.*
+Thumbs.db
+*.orig
+*.swp
+*.swo
+*.lnk
+*.pictClipping
+
+# editor files
+.vimrc.local
+
+node_modules
+
+# zend studio for eclipse project files
+.buildpath
+.project
+.settings
+
