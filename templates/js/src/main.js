@@ -45,24 +45,55 @@ navigator.getUserMedia({video: true}, function(stream) {
       }, console.error);
     }, console.error);
   }, console.error);
-
-
 }, console.error);
-
-function getOtherPc(pc) {
-  return (pc === pc1) ? pc2 : pc1;
-}
 
 function onIceCandidate(pc, event) {
   if (event.candidate) {
-    getOtherPc(pc).addIceCandidate(
-      new RTCIceCandidate(event.candidate)
-    ).then(
-      function() {
+    addCandidate(event.candidate);
+    console.log('onIceCandidate', event.candidate);
 
-      },
-      function(err) {
-      }
-    );
+    // getOtherPc(pc).addIceCandidate(
+    //   new RTCIceCandidate(event.candidate)
+    // ).then(
+    //   function() {
+    //
+    //   },
+    //   function(err) {
+    //   }
+    // );
   }
 }
+
+function addCandidate(candidate) {
+  var user = firebase.auth().currentUser;
+  var database = firebase.database();
+  console.log(database.ref('candidates').child(user.uid));
+  database.ref('candidates').child(user.uid).push(JSON.parse(JSON.stringify(candidate)));
+}
+
+firebase.auth().onAuthStateChanged(function(user) {
+  if (user) {
+    var database = firebase.database();
+    database.ref('user').set({
+      username: user.uid
+    });
+    console.log('onAuthStateChanged done', user);
+  } else {
+    firebase.auth().signInAnonymously().catch(function(error) {
+      var errorCode = error.code;
+      var errorMessage = error.message;
+      console.log(errorCode, errorMessage);
+    });
+  }
+});
+
+document.querySelector('#room-name-form').addEventListener('submit', function (e) {
+  e.preventDefault();
+  e.stopPropagation();
+  var roomNameField = document.querySelector('#room-name-field');
+  var roomName = roomNameField.value.trim();
+  if (roomName.length) {
+    document.querySelector('#room-name-page').classList.remove("active");
+    document.querySelector('#chat-page').classList.add("active");
+  }
+});

@@ -1,4 +1,17 @@
 <% extend 'layout/default.ect' %>
 
-<video id="local-video" autoplay></video>
-<video id="remote-video" autoplay></video>
+<article id="room-name-page" class="page active">
+	<div class="page-inner">
+		<form id="room-name-form" class="room-name-form">
+			<input id="room-name-field" class="room-name-field" name="room-name">
+		</form>
+	</div>
+</article>
+
+<article id="chat-page" class="page">
+	<div class="page-inner">
+		<video id="local-video" autoplay></video>
+		<video id="remote-video" autoplay></video>
+	</div>
+</article>
+

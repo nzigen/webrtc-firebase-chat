@@ -1,10 +1,10 @@
 module.exports = (grunt) ->
   pkg = grunt.file.readJSON 'package.json'
   grunt.initConfig
-#    compass:
-#      dist:
-#        options:
-#          config: 'compass_config.rb'
+    compass:
+      dist:
+        options:
+          config: 'compass_config.rb'
     ect:
       options:
         root: 'templates/html/ect'
@@ -26,14 +26,14 @@ module.exports = (grunt) ->
         files:
           'templates/html/ect/**/*.ect'
         tasks: ['ect']
-#      sass:
-#        files: [
-#          'templates/css/sass/*.sass'
-#          'templates/css/sass/*.scss'
-#          'templates/css/sass/**/*.sass'
-#          'templates/css/sass/**/*.scss'
-#        ]
-#        tasks: ['compass']
+      sass:
+        files: [
+          'templates/css/sass/*.sass'
+          'templates/css/sass/*.scss'
+          'templates/css/sass/**/*.sass'
+          'templates/css/sass/**/*.scss'
+        ]
+        tasks: ['compass']
 #      coffee:
 #        files: [
 #          'templates/js/coffee/*.coffee'
@@ -51,4 +51,4 @@ module.exports = (grunt) ->
         grunt.loadNpmTasks t
 
   grunt.loadNpmTasks 'grunt-ect'
-  grunt.registerTask 'default', ['concat:js', 'ect']
+  grunt.registerTask 'default', ['concat:js', 'ect', 'compass']
