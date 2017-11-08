@@ -5,6 +5,7 @@ module.exports = (grunt) ->
       dist:
         options:
           config: 'compass_config.rb'
+          specify: 'templates/css/sass/app.sass'
     ect:
       options:
         root: 'templates/html/ect'
