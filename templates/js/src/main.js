@@ -14,12 +14,13 @@ function setUpPeers(roomName) {
   receivingPeer = new RTCPeerConnection(peerConfiguration);
   navigator.getUserMedia({video: true, audio: false}, function(stream) {
     console.log('getUserMedia done', stream);
-    var video = document.querySelector('#local-video');
+    var video = document.querySelector('#video-local');
     video.srcObject = stream;
     sendingPeer.addStream(stream);
 
     receivingPeer.onaddstream = function (object) {
-      var video = document.querySelector('#remote-video');
+      document.querySelector('#chat-page').classList.remove('disconnected');
+      var video = document.querySelector('#video-remote');
       video.srcObject = object.stream;
       console.log("receivingPeer onaddstream", object);
     };
@@ -45,6 +46,7 @@ function setUpPeers(roomName) {
           receivingPeer.iceConnectionState === "closed") {
         if (otherUids.length) {
           otherUids = [];
+          document.querySelector('#chat-page').classList.add('disconnected');
         }
       }
     }
