@@ -24,7 +24,6 @@ function setUpPeers(roomName) {
       video.srcObject = object.stream;
       console.log("receivingPeer onaddstream", object);
     };
-
     sendingPeer.onicecandidate = function(e) {
       if (e.candidate) {
         console.log('onicecandidate sendingPeer', e.candidate);
@@ -37,19 +36,6 @@ function setUpPeers(roomName) {
         addCandidateToRoom(e.candidate, roomName, 'receiving');
       }
     };
-    sendingPeer.oniceconnectionstatechange = function (e) {
-      console.log('oniceconnectionstatechange', e);
-    }
-    receivingPeer.oniceconnectionstatechange = function (e) {
-      if (receivingPeer.iceConnectionState === "failed" ||
-          receivingPeer.iceConnectionState === "disconnected" ||
-          receivingPeer.iceConnectionState === "closed") {
-        if (otherUids.length) {
-          otherUids = [];
-          document.querySelector('#chat-page').classList.add('disconnected');
-        }
-      }
-    }
   }, console.error);
 }
 
@@ -133,6 +119,22 @@ function addOtherUidToRoom(uid, roomName) {
   }, console.error);
 }
 
+function changeStatusDisconnected() {
+  document.querySelector('#chat-page').classList.add('disconnected');
+}
+
+function removeAllRoomRefForUser(roomName) {
+  var database = firebase.database();
+  var roomRef = database.ref('rooms').child(roomName);
+  var currentUser = firebase.auth().currentUser;
+  var uid = currentUser.uid;
+  roomRef.child('offers').child(uid).remove();
+  roomRef.child('answers').child(uid).remove();
+  roomRef.child('receiving-candidates').child(uid).remove();
+  roomRef.child('sending-candidates').child(uid).remove();
+  roomRef.child('users').child(uid).remove();
+}
+
 function joinRoom(roomName) {
   firebase.auth().onAuthStateChanged(function(user) {
     if (user) {
@@ -142,14 +144,28 @@ function joinRoom(roomName) {
       roomRef.child('users').child(user.uid).set(new Date().getTime());
       setUpPeers(roomName);
       roomRef.child('users').on('value', function (snapshot) {
-        snapshot.forEach(function(child) {
+        var count = 0;
+        var pastOtherUids = otherUids;
+        otherUids = [];
+        snapshot.forEach(function (child) {
+          count++;
           var uid = child.key;
-          console.log('User ' + uid + ' joined to Room "' + roomName + '"');
+          if (pastOtherUids.indexOf(uid) !== -1) {
+            console.log('User ' + uid + ' joined to Room "' + roomName + '"');
+          }
           if (user.uid !== uid) {
             addOtherUidToRoom(uid, roomName);
           }
         });
+        if (count <= 1 && pastOtherUids.length >= 2) {
+          changeStatusDisconnected();
+        }
       });
+
+
+      window.onunload = function () {
+        removeAllRoomRefForUser(roomName);
+      };
 
     } else {
       firebase.auth().signInAnonymously().catch(function(error) {
@@ -161,14 +177,23 @@ function joinRoom(roomName) {
   });
 }
 
+function openChat(roomName) {
+  document.querySelector('#room-name-page').classList.remove("active");
+  document.querySelector('#chat-page').classList.add("active");
+  joinRoom(roomName);
+}
+
 document.querySelector('#room-name-form').addEventListener('submit', function (e) {
   e.preventDefault();
   e.stopPropagation();
   var roomNameField = document.querySelector('#room-name-field');
   var roomName = roomNameField.value.trim();
   if (roomName.length) {
-    document.querySelector('#room-name-page').classList.remove("active");
-    document.querySelector('#chat-page').classList.add("active");
-    joinRoom(roomName);
+    openChat(roomName);
   }
 });
+
+if (location.hash.length && /^#.+/.test(location.hash)) {
+  var roomName = location.hash.substr(1, location.hash.length - 1);
+  openChat(roomName);
+}
