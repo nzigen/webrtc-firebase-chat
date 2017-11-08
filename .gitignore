@@ -29,6 +29,7 @@ node_modules
 .project
 .settings
 
+.firebaserc
 public/*
 !public/.keep
 templates/html/ect/partials/firebase.ect
